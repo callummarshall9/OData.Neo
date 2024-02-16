@@ -13,7 +13,7 @@ namespace OData.Neo.Core.Services.Foundations.Tokenizations
     public partial class TokenizationService : ITokenizationService
     {
         readonly ITokenizationValidationService tokenizationValidationService;
-        readonly char[] seperatorChars = new char[] { '\'', ' ', '=', '\\' };
+        readonly char[] seperatorChars = new char[] { '\'', ' ', '=', '\\', '(', ')' };
 
         public TokenizationService(ITokenizationValidationService tokenizationValidationService)
         {
