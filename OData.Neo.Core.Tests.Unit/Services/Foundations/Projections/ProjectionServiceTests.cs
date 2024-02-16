@@ -96,7 +96,9 @@ namespace OData.Neo.Core.Tests.Unit.Services.Foundations.Projections
                     (GetRandomWord(), ProjectedTokenType.Property, TokenType.Word),
                     (" ", ProjectedTokenType.Space, TokenType.Separator),
                     ("eq", ProjectedTokenType.Equals, TokenType.Word),
-                    (",", ProjectedTokenType.Comma, TokenType.Separator)
+                    (",", ProjectedTokenType.Comma, TokenType.Separator),
+                    ("(", ProjectedTokenType.Brackets, TokenType.Separator),
+                    (")", ProjectedTokenType.Brackets, TokenType.Separator)
                 };
 
             int randomIndex =
