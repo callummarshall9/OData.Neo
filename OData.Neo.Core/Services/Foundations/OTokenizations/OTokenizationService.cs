@@ -35,13 +35,22 @@ namespace OData.Neo.Core.Services.Foundations.OTokenizations
                     : root;
             });
 
+        OTokenType GetKeywordTokenType(OToken token)
+            => token.RawValue switch
+            {
+                "$select" => OTokenType.Select,
+                "$expand" => OTokenType.Expand,
+                _ => OTokenType.Unidentified
+            };
+
         OToken ProcessTokens(OToken root, OToken[] oTokens)
         {
-            var selectToken = oTokens[0];
-            selectToken.Type = OTokenType.Select;
+            var keywordToken = oTokens[0];
 
-            root.Children.Add(selectToken);
-            selectToken.Children ??= new();
+            keywordToken.Type = GetKeywordTokenType(keywordToken);
+
+            root.Children.Add(keywordToken);
+            keywordToken.Children ??= new();
             var tokens = oTokens
                 .Skip(1)
                 .Where(token => token.ProjectedType != ProjectedTokenType.Equals)
@@ -51,7 +60,7 @@ namespace OData.Neo.Core.Services.Foundations.OTokenizations
                     return token;
                 });
 
-            selectToken.Children.AddRange(tokens);
+            keywordToken.Children.AddRange(tokens);
 
             return root;
         }
