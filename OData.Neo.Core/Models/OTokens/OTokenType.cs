@@ -10,6 +10,7 @@ namespace OData.Neo.Core.Models.OTokens
         Unidentified,
         Root,
         Select,
+        Expand,
         Property
     }
 }
