@@ -60,7 +60,10 @@ namespace OData.Neo.Core.Services.Foundations.OExpressions
                         .Select(child => $"obj.{child.RawValue}"));
 
                     stringBuilder.Append($"Select(obj => new {{{properties}}})");
-                }
+                } else if (child.Type == OTokenType.Expand)
+                    stringBuilder.Append(string.Join(".", child.Children
+                        .Select(rpot => $"Include(obj => obj.{rpot.RawValue})")
+                        .ToArray()));
             }
 
             return stringBuilder.ToString();
