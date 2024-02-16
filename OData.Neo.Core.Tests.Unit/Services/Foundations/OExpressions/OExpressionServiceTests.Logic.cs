@@ -19,7 +19,7 @@ namespace OData.Neo.Core.Tests.Unit.Services.Foundations.OExpressions
     public partial class OExpressionServiceTests
     {
         [Fact]
-        public async Task ShouldGenerateOExpressionAsync()
+        public async Task ShouldGenerateOExpressionForSelectAsync()
         {
             // given
             (List<OToken> randomPropertyOTokens, string allRawValues) =
@@ -74,6 +74,71 @@ namespace OData.Neo.Core.Tests.Unit.Services.Foundations.OExpressions
             this.expressionBrokerMock.Verify(broker =>
                 broker.GenerateExpressionAsync<object>(expectedLinqQuery),
                     Times.Once);
+
+            this.expressionBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task ShouldGenerateOExpressionForExpandAsync()
+        {
+            // given
+            (List<OToken> randomPropertyOTokens, string allRawValues) =
+                CreateRandomPropertyOTokens();
+
+            (List<OToken> randomNonPropertyOTokens, _) =
+                CreateRandomNonPropertyOTokens();
+
+            var inputOExpression = new OExpression
+            {
+                OToken = new OToken
+                {
+                    Type = OTokenType.Root,
+
+                    Children = new List<OToken>
+                    {
+                        new OToken
+                        {
+                            RawValue = "$expand",
+                            Type = OTokenType.Expand,
+                            ProjectedType = ProjectedTokenType.Keyword,
+
+                            Children =
+                                randomPropertyOTokens.Concat(randomNonPropertyOTokens)
+                                    .ToList()
+                        }
+                    }
+                }
+            };
+
+            string expectedLinqQuery = string.Join(".", randomPropertyOTokens.Concat(randomNonPropertyOTokens)
+                .Select(rpot => $"Include(obj => obj.{rpot.RawValue})")
+                .ToArray());
+
+            Expression generatedExpression = Expression.Constant(value: default);
+
+            var expectedOExpression = new OExpression
+            {
+                Expression = generatedExpression,
+                OToken = inputOExpression.OToken
+            };
+
+            this.expressionBrokerMock.Setup(broker =>
+                broker.GenerateExpressionAsync<object>(expectedLinqQuery))
+                    .ReturnsAsync(generatedExpression);
+
+            // when
+            OExpression actualOExpression =
+                await this.oExpressionService.GenerateOExpressionAsync<object>(
+                    inputOExpression);
+
+            // then
+            this.expressionBrokerMock.Verify(broker =>
+                broker.GenerateExpressionAsync<object>(expectedLinqQuery),
+                    Times.Once);
+
+            actualOExpression.Should().BeEquivalentTo(expectedOExpression);
+
+
 
             this.expressionBrokerMock.VerifyNoOtherCalls();
         }
