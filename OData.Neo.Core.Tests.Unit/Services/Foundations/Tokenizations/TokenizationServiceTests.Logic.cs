@@ -24,7 +24,7 @@ namespace OData.Neo.Core.Tests.Unit.Services.Foundations.Tokenizations
                 new Token(TokenType.Separator, "="),
                 new Token(TokenType.Word, "LibraryCards"),
                 new Token(TokenType.Separator, "("),
-                new Token(TokenType.Word, "select"),
+                new Token(TokenType.Word, "$select"),
                 new Token(TokenType.Separator, "="),
                 new Token(TokenType.Word, "Name"),
                 new Token(TokenType.Separator, ")"),
