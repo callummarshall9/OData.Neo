@@ -45,24 +45,72 @@ namespace OData.Neo.Core.Services.Foundations.OTokenizations
 
         OToken ProcessTokens(OToken root, OToken[] oTokens)
         {
-            var keywordToken = oTokens[0];
+            OToken rootNode = root;
 
-            keywordToken.Type = GetKeywordTokenType(keywordToken);
+            OToken currentRoot = rootNode;
 
-            root.Children.Add(keywordToken);
-            keywordToken.Children ??= new();
-            var tokens = oTokens
-                .Skip(1)
-                .Where(token => token.ProjectedType != ProjectedTokenType.Equals)
-                .Select(token =>
+            currentRoot.Children ??= new List<OToken>();
+
+            foreach(var token in oTokens)
+            {
+                if (token.ProjectedType == ProjectedTokenType.Brackets && currentRoot.Type == OTokenType.Expand && currentRoot.Children.Any())
                 {
-                    token.Type = OTokenType.Property;
-                    return token;
-                });
+                    var newRootNode = currentRoot.Children.Last();
 
-            keywordToken.Children.AddRange(tokens);
+                    newRootNode.Parent = currentRoot;
+                    newRootNode.Children ??= new List<OToken>();
+
+                    currentRoot = newRootNode;//$expand=LibraryCards($select=Name), so LibraryCards.
+                }
+                else if (token.ProjectedType == ProjectedTokenType.Brackets && currentRoot.Type != OTokenType.Expand)
+                    currentRoot = currentRoot.Parent;
+                else if (token.ProjectedType == ProjectedTokenType.Space)
+                    continue;
+                else if (token.ProjectedType == ProjectedTokenType.Equals)
+                    continue;
+                else if (token.ProjectedType == ProjectedTokenType.Comma)
+                    continue;
+                else if (token.ProjectedType == ProjectedTokenType.Keyword)
+                {
+                    var newKeywordToken = new OToken
+                    {
+                        Type = GetKeywordTokenType(token),
+                        ProjectedType = token.ProjectedType,
+                        Children = new List<OToken>(),
+                        Parent = currentRoot,
+                        RawValue = token.RawValue
+                    };
+
+                    currentRoot.Children.Add(newKeywordToken);
+
+                    currentRoot = newKeywordToken;
+                } 
+                else
+                {
+                    currentRoot.Children.Add(new OToken
+                    {
+                        Type = OTokenType.Property,
+                        ProjectedType = token.ProjectedType,
+                        Parent = currentRoot,
+                        RawValue = token.RawValue,
+                    });
+                }
+            }
+
+            NullParent(new[] { root });
 
             return root;
+        }
+
+        void NullParent(IEnumerable<OToken> children)
+        {
+            children ??= new List<OToken>();
+
+            foreach(var entry in children)
+            {
+                entry.Parent = null;
+                NullParent(entry.Children);
+            }
         }
     }
 }

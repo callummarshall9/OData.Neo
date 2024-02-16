@@ -13,6 +13,7 @@ namespace OData.Neo.Core.Models.OTokens
         public string RawValue { get; set; }
         public OTokenType Type { get; set; }
         public ProjectedTokenType ProjectedType { get; set; }
+        public OToken Parent { get; set; }
         public List<OToken> Children { get; set; }
     }
 }
