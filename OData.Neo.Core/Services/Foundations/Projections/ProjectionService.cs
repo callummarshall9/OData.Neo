@@ -29,6 +29,8 @@ namespace OData.Neo.Core.Services.Foundations.Projections
                     " " => ProjectedTokenType.Space,
                     "eq" => ProjectedTokenType.Equals,
                     "," => ProjectedTokenType.Comma,
+                    "(" => ProjectedTokenType.Brackets,
+                    ")" => ProjectedTokenType.Brackets,
                     _ when projectedToken.RawValue.StartsWith("$") => ProjectedTokenType.Keyword,
                     _ => ProjectedTokenType.Property
                 };
