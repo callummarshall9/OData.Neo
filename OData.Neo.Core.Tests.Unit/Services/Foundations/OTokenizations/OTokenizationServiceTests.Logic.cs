@@ -201,7 +201,7 @@ namespace OData.Neo.Core.Tests.Unit.Services.Foundations.OTokenizations
                             new OToken
                             {
                                 ProjectedType = ProjectedTokenType.Property,
-                                RawValue = "LibaryCards",
+                                RawValue = "LibraryCards",
                                 Type = OTokenType.Property,
                                 Children = new List<OToken>
                                 {
@@ -232,7 +232,7 @@ namespace OData.Neo.Core.Tests.Unit.Services.Foundations.OTokenizations
                 this.tokenizationService.OTokenize(inputTokens);
 
             // then
-            actualToken.Should().BeEquivalentTo(expectedToken);
+            actualToken.Should().BeEquivalentTo(expectedToken, opts => opts.IgnoringCyclicReferences());
         }
 
         [Fact]
