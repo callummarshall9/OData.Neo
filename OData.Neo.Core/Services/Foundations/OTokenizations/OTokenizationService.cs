@@ -13,6 +13,12 @@ namespace OData.Neo.Core.Services.Foundations.OTokenizations
     public partial class OTokenizationService : IOTokenizationService
     {
         private readonly IOTokenizationValidationService oTokenizationValidationService;
+        ProjectedTokenType[] seperatorTokenTypes = [
+            ProjectedTokenType.Space, 
+            ProjectedTokenType.Comma, 
+            ProjectedTokenType.Assignment,
+            ProjectedTokenType.Quotes
+        ];
 
         public OTokenizationService(IOTokenizationValidationService oTokenizationValidationService)
         {
@@ -35,25 +41,83 @@ namespace OData.Neo.Core.Services.Foundations.OTokenizations
                     : root;
             });
 
+        OTokenType GetKeywordTokenType(OToken token)
+            => token.RawValue switch
+            {
+                "$select" => OTokenType.Select,
+                "$expand" => OTokenType.Expand,
+                "$filter" => OTokenType.Filter,
+                _ => OTokenType.Unidentified,
+            };
+
         OToken ProcessTokens(OToken root, OToken[] oTokens)
         {
-            var selectToken = oTokens[0];
-            selectToken.Type = OTokenType.Select;
+            OToken rootNode = root;
 
-            root.Children.Add(selectToken);
-            selectToken.Children ??= new();
-            var tokens = oTokens
-                .Skip(1)
-                .Where(token => token.ProjectedType != ProjectedTokenType.Equals)
-                .Select(token =>
+            OToken currentRoot = rootNode;
+
+            currentRoot.Children ??= new List<OToken>();
+
+            foreach(var token in oTokens)
+            {
+                if (token.ProjectedType == ProjectedTokenType.AndSign)
                 {
-                    token.Type = OTokenType.Property;
-                    return token;
-                });
+                    currentRoot = rootNode;
+                } 
+                else if (token.ProjectedType == ProjectedTokenType.Brackets && currentRoot.Type == OTokenType.Expand && currentRoot.Children.Any())
+                {
+                    var newRootNode = currentRoot.Children.Last();
 
-            selectToken.Children.AddRange(tokens);
+                    newRootNode.Parent = currentRoot;
+                    newRootNode.Children ??= new List<OToken>();
+
+                    currentRoot = newRootNode;//$expand=LibraryCards($select=Name), so LibraryCards.
+                }
+                else if (token.ProjectedType == ProjectedTokenType.Brackets && currentRoot.Type != OTokenType.Expand)
+                    currentRoot = currentRoot.Parent;
+                else if (seperatorTokenTypes.Contains(token.ProjectedType))
+                    continue;
+                else if (token.ProjectedType == ProjectedTokenType.Keyword)
+                {
+                    var newKeywordToken = new OToken
+                    {
+                        Type = GetKeywordTokenType(token),
+                        ProjectedType = token.ProjectedType,
+                        Children = new List<OToken>(),
+                        Parent = currentRoot,
+                        RawValue = token.RawValue
+                    };
+
+                    currentRoot.Children.Add(newKeywordToken);
+
+                    currentRoot = newKeywordToken;
+                } 
+                else
+                {
+                    currentRoot.Children.Add(new OToken
+                    {
+                        Type = OTokenType.Property,
+                        ProjectedType = token.ProjectedType,
+                        Parent = currentRoot,
+                        RawValue = token.RawValue,
+                    });
+                }
+            }
+
+            NullParent(new[] { root });
 
             return root;
+        }
+
+        void NullParent(IEnumerable<OToken> children)
+        {
+            children ??= new List<OToken>();
+
+            foreach(var entry in children)
+            {
+                entry.Parent = null;
+                NullParent(entry.Children);
+            }
         }
     }
 }

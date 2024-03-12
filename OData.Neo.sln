@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OData.Neo.Core", "OData.Neo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OData.Neo.Core.Tests.Unit", "OData.Neo.Core.Tests.Unit\OData.Neo.Core.Tests.Unit.csproj", "{B5E75413-EBED-4C65-907B-A66C88ED7C43}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OData.Neo.Core.Infrastructure.Build", "OData.Neo.Core.Infrastructure.Build\OData.Neo.Core.Infrastructure.Build.csproj", "{842AC964-082A-4F8B-9B71-CBA8C055186D}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,10 +21,6 @@ Global
 		{B5E75413-EBED-4C65-907B-A66C88ED7C43}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B5E75413-EBED-4C65-907B-A66C88ED7C43}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B5E75413-EBED-4C65-907B-A66C88ED7C43}.Release|Any CPU.Build.0 = Release|Any CPU
-		{842AC964-082A-4F8B-9B71-CBA8C055186D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{842AC964-082A-4F8B-9B71-CBA8C055186D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{842AC964-082A-4F8B-9B71-CBA8C055186D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{842AC964-082A-4F8B-9B71-CBA8C055186D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
