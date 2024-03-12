@@ -13,6 +13,31 @@ namespace OData.Neo.Core.Tests.Unit.Services.Foundations.Tokenizations
     public partial class TokenizationServiceTests
     {
         [Fact]
+        public void ShouldTokenizeMultipleAndExpandQueryCorrectly()
+        {
+            //given
+            string query = "$expand=LibraryCards&$select=ExpiryDate";
+
+            var expectedTokens = new Token[]
+            {
+                new Token(TokenType.Word, "$expand"),
+                new Token(TokenType.Separator, "="),
+                new Token(TokenType.Word, "LibraryCards"),
+                new Token(TokenType.Separator, "&"),
+                new Token(TokenType.Word, "$select"),
+                new Token(TokenType.Separator, "="),
+                new Token(TokenType.Word, "ExpiryDate"),
+            };
+
+            // when
+            Token[] actualTokens =
+                this.tokenizationService.Tokenize(query);
+
+            // then
+            actualTokens.Should().BeEquivalentTo(expectedTokens);
+        }
+
+        [Fact]
         public void ShouldTokenizeSelectExpandQuery()
         {
             // given

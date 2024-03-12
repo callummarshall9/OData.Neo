@@ -14,6 +14,8 @@ namespace OData.Neo.Core.Models.ProjectedTokens
         Space,
         Equals,
         Comma,
-        Brackets
+        Brackets,
+        AndSign,
+        Quotes
     }
 }

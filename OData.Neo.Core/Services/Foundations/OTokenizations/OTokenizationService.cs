@@ -13,6 +13,12 @@ namespace OData.Neo.Core.Services.Foundations.OTokenizations
     public partial class OTokenizationService : IOTokenizationService
     {
         private readonly IOTokenizationValidationService oTokenizationValidationService;
+        ProjectedTokenType[] seperatorTokenTypes = [
+            ProjectedTokenType.Space, 
+            ProjectedTokenType.Comma, 
+            ProjectedTokenType.Assignment,
+            ProjectedTokenType.Quotes
+        ];
 
         public OTokenizationService(IOTokenizationValidationService oTokenizationValidationService)
         {
@@ -40,7 +46,8 @@ namespace OData.Neo.Core.Services.Foundations.OTokenizations
             {
                 "$select" => OTokenType.Select,
                 "$expand" => OTokenType.Expand,
-                _ => OTokenType.Unidentified
+                "$filter" => OTokenType.Filter,
+                _ => OTokenType.Unidentified,
             };
 
         OToken ProcessTokens(OToken root, OToken[] oTokens)
@@ -53,7 +60,11 @@ namespace OData.Neo.Core.Services.Foundations.OTokenizations
 
             foreach(var token in oTokens)
             {
-                if (token.ProjectedType == ProjectedTokenType.Brackets && currentRoot.Type == OTokenType.Expand && currentRoot.Children.Any())
+                if (token.ProjectedType == ProjectedTokenType.AndSign)
+                {
+                    currentRoot = rootNode;
+                } 
+                else if (token.ProjectedType == ProjectedTokenType.Brackets && currentRoot.Type == OTokenType.Expand && currentRoot.Children.Any())
                 {
                     var newRootNode = currentRoot.Children.Last();
 
@@ -64,11 +75,7 @@ namespace OData.Neo.Core.Services.Foundations.OTokenizations
                 }
                 else if (token.ProjectedType == ProjectedTokenType.Brackets && currentRoot.Type != OTokenType.Expand)
                     currentRoot = currentRoot.Parent;
-                else if (token.ProjectedType == ProjectedTokenType.Space)
-                    continue;
-                else if (token.ProjectedType == ProjectedTokenType.Equals)
-                    continue;
-                else if (token.ProjectedType == ProjectedTokenType.Comma)
+                else if (seperatorTokenTypes.Contains(token.ProjectedType))
                     continue;
                 else if (token.ProjectedType == ProjectedTokenType.Keyword)
                 {

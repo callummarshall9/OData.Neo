@@ -29,9 +29,11 @@ namespace OData.Neo.Core.Services.Foundations.Projections
                     " " => ProjectedTokenType.Space,
                     "eq" => ProjectedTokenType.Equals,
                     "," => ProjectedTokenType.Comma,
+                    "&" => ProjectedTokenType.AndSign,
                     "(" => ProjectedTokenType.Brackets,
                     ")" => ProjectedTokenType.Brackets,
-                    _ when projectedToken.RawValue.StartsWith("$") => ProjectedTokenType.Keyword,
+                    "'" => ProjectedTokenType.Quotes,
+                    _ when projectedToken.RawValue.StartsWith('$') => ProjectedTokenType.Keyword,
                     _ => ProjectedTokenType.Property
                 };
             }

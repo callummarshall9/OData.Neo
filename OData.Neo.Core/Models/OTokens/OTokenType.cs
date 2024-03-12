@@ -11,6 +11,7 @@ namespace OData.Neo.Core.Models.OTokens
         Root,
         Select,
         Expand,
-        Property
+        Property,
+        Filter
     }
 }
